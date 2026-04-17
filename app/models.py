@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import func
 
 from app.database import Base
+from app.api.auth import hash_password
 
 class User(Base):
 
@@ -13,3 +14,11 @@ class User(Base):
 	role: str = Column(String(20), default='user')
 	is_active: bool = Column(Boolean, default=True)
 	created_at: DateTime = Column(DateTime(timezone=True), server_default=func.now())
+
+	@classmethod
+	def create(cls, username: str, password: str, role: str = 'user'):
+		return cls(
+			username=username,
+			hashed_password=hashed_password(password),
+			role=role
+		)
