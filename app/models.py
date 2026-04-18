@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 from app.database import Base
 from app.api.auth import hash_password
 
+
 class User(Base):
 
 	__tablename__ = 'users'
@@ -19,6 +20,6 @@ class User(Base):
 	def create(cls, username: str, password: str, role: str = 'user'):
 		return cls(
 			username=username,
-			hashed_password=hashed_password(password),
+			hashed_password=hash_password(password),
 			role=role
 		)
