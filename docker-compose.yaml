@@ -25,6 +25,15 @@ services:
         condition: service_healthy
     restart: always
 
+  test:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: pytest -v --tb=short
+    profiles:
+      - testing
+
 volumes:
   postgres_data:
     
