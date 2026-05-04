@@ -136,7 +136,7 @@ class TestJWTSecurity:
         header = base64.urlsafe_b64encode(
             json.dumps({'alg': 'none', 'type': 'JWT'}).encode()
         ).decode().rstrip('=')
-        paylode = base64.urlsafe_b64encode(
+        payload = base64.urlsafe_b64encode(
             json.dumps({'sub': 'attacker', 'role': 'admin'}).encode()
         ).decode().rstrip('=')
         malicious_token = f'{header}.{payload}'
