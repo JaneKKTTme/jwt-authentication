@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import List, Dict, Any
 
@@ -9,14 +10,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import engine, get_db, init_db
 from app.models import User
 from app.core.schemas import UserCreate, UserResponse
+from app.core.redis_client import redis_client
 
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 	await init_db()
+	redis_client.connect()
+	logger.info('Redis initialized')
 	yield
 
 	await engine.dispose()
+	if redis_client.client:
+		redis_client.client.close()
 
 app = FastAPI(title='Auth System', lifespan=lifespan)
 

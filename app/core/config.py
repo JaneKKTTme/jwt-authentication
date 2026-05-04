@@ -23,6 +23,15 @@ class Settings(BaseSettings):
 		env='ACCESS_TOKEN_EXPIRE_MINUTES'
 	)
 
+	redis_url: str = Field(
+		default='redis://redis:6379/0',
+		env='REDIS_URL'
+	)
+
+	@property
+	def whitelist_ttl(self) -> int:
+		return self.access_token_expire_minutes * 60
+
 	class Config:
 		env_file = '.env'
 		extra = 'forbid'

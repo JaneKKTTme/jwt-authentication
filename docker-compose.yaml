@@ -23,6 +23,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redic-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: always
 
   test:
