@@ -3,7 +3,9 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from jose import jwt, JWTError
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models import User
 from app.core.config import settings
 
 
@@ -32,3 +34,17 @@ def decode_token(token: str) -> dict | None:
 		return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
 	except JWTError:
 		return None
+
+async def create_user(db: AsyncSession, username: str, password: str, role: str = 'user') -> User:
+	hashed_password = hash_password(password)
+	user = User(
+		username=username,
+		hashed_password=hashed_password,
+		role=role,
+		is_active=True
+	)
+	db.add(user)
+	await db.commit()
+	await db.refresh(user)
+	return user
+	

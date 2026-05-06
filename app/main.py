@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import engine, get_db, init_db
 from app.models import User
 from app.core.schemas import UserCreate, UserResponse
+from app.api.auth import create_user
 from app.core.redis_client import redis_client
 
 
@@ -64,14 +65,12 @@ async def register(
 	if result.scalar_one_or_none():
 		raise HTTPException(status_code=400, detail='Username already exists')
 
-	user = User.create(
+	user = await create_user(
+		db=db,
 		username=user_data.username,
 		password=user_data.password,
 		role=user_data.role
 	)
-	db.add(user)
-	await db.commit()
-	await db.refresh(user)
 
 	return UserResponse(
 		id=user.id,
