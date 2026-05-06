@@ -12,6 +12,7 @@ from app.database import engine, get_db, init_db
 from app.models import User
 from app.api.auth import router as auth_router
 from app.api.auth import create_user
+from app.api.logout import router as logout_router
 from app.core.dependencies import get_current_user
 from app.core.redis_client import redis_client
 from app.core.schemas import UserCreate, UserResponse
@@ -33,6 +34,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title='Auth System', lifespan=lifespan)
 
 app.include_router(auth_router)
+app.include_router(logout_router)
 
 security = HTTPBearer()
 
