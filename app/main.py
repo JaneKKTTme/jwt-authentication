@@ -12,6 +12,7 @@ from app.database import engine, get_db, init_db
 from app.models import User
 from app.api.auth import router as auth_router
 from app.api.auth import create_user
+from app.core.dependencies import get_current_user
 from app.core.redis_client import redis_client
 from app.core.schemas import UserCreate, UserResponse
 
@@ -50,20 +51,11 @@ async def check_db(db: AsyncSession = Depends(get_db)):
 	return {'database': 'connected'}
 
 @app.get('/me')
-async def read_me(credentials: HTTPAuthorizationCredentials = Depends(security)):
-	token = credentials.credentials
-	payload = decode_token(token)
-	if not payload:
-		raise HTTPException(status_code=401, detail='Invalid token')
-
-	jti = payload.get('jti')
-	if not jti or not redis_client.is_whitelisted(jti):
-		raise HTTPException(status_code=401, detail='Token not active')
-
+async def read_me(current_user: dict = Depends(get_current_user)):
 	return {
-		'username': payload.get('sub'),
-		'role': payload.get('role'),
-		'user_id': payload.get('user_id')
+		'username': current_user.get('sub'),
+		'role': current_user.get('role'),
+		'user_id': current_user.get('user_id')
 	}
 
 @app.get('/users')
