@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
 from sqlalchemy.sql import func
 
 from app.database import Base
@@ -24,7 +24,7 @@ class Session(Base):
 	__tablename__ = 'session'
 
 	id: int = Column(Integer, primary_key=True, index=True)
-	user_id: int = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'))
+	user_id: int = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 	jti: str = Column(String(255), unique=True, index=True)
 	ip_address: str = Column(String(45), nullable=True)
 	user_agent: str = Column(Text, nullable=True)
