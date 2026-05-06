@@ -2,16 +2,18 @@ import logging
 from contextlib import asynccontextmanager
 from typing import List, Dict, Any
 
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import engine, get_db, init_db
 from app.models import User
-from app.core.schemas import UserCreate, UserResponse
+from app.api.auth import router as auth_router
 from app.api.auth import create_user
 from app.core.redis_client import redis_client
+from app.core.schemas import UserCreate, UserResponse
 
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title='Auth System', lifespan=lifespan)
 
+app.include_router(auth_router)
+
+security = HTTPBearer()
+
 
 @app.get('/')
 async def root():
@@ -42,6 +48,23 @@ async def ping():
 async def check_db(db: AsyncSession = Depends(get_db)):
 	await db.execute(text('SELECT 1'))
 	return {'database': 'connected'}
+
+@app.get('/me')
+async def read_me(credentials: HTTPAuthorizationCredentials = Depends(security)):
+	token = credentials.credentials
+	payload = decode_token(token)
+	if not payload:
+		raise HTTPException(status_code=401, detail='Invalid token')
+
+	jti = payload.get('jti')
+	if not jti or not redis_client.is_whitelisted(jti):
+		raise HTTPException(status_code=401, detail='Token not active')
+
+	return {
+		'username': payload.get('sub'),
+		'role': payload.get('role'),
+		'user_id': payload.get('user_id')
+	}
 
 @app.get('/users')
 async def get_users(db: AsyncSession = Depends(get_db)) -> List[Dict[str, Any]]:

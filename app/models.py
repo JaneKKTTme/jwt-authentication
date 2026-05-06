@@ -16,3 +16,4 @@ class User(Base):
 	role: str = Column(String(20), default='user')
 	is_active: bool = Column(Boolean, default=True)
 	created_at: DateTime = Column(DateTime(timezone=True), server_default=func.now())
+	last_login: datetime | None = Column(DateTime(timezone=True), nullable=True)
