@@ -25,15 +25,17 @@ def verify_password(suggested_password: str, hashed_password: str) -> bool:
 			hashed_password.encode('utf-8')
 		)
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def _create_access_token_raw(data: dict, expires_delta: timedelta | None = None) -> str:
 	to_encode = data.copy()
-
-	if 'jti' not in data:
-		raise ValueError('jti claim is required in token payload')
-
 	expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.access_token_expire_minutes))
 	to_encode.update({'exp': expire})
 	return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+	if 'jti' not in data:
+		raise ValueError('jti claim is required in token payload')
+
+	return _create_access_token_raw(data, expires_delta)
 
 def decode_token(token: str) -> dict | None:
 	try:
