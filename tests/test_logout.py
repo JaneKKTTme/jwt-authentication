@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from freezegun import freeze_time
 
 from app.core.redis_client import redis_client
-from app.api.auth import create_access_token, decode_token
+from app.api.auth import _create_access_token_raw, decode_token
 
 
 class TestLogoutBasic:
@@ -129,7 +129,7 @@ class TestLogoutEdgeCases:
     @pytest.mark.asyncio
     async def test_logout_token_without_jti(self, client: AsyncClient):
         from app.api.auth import create_access_token
-        token_without_jti = create_access_token({'sub': 'alice', 'role': 'role1'})
+        token_without_jti = _create_access_token_raw({'sub': 'alice', 'role': 'role1'})
 
         response = await client.post('/logout', data={'token': token_without_jti})
         assert response.status_code == 400
