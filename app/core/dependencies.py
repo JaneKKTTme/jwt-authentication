@@ -1,11 +1,14 @@
+from typing import List, Set
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import Session as SessionModel
+from app.models import Session as SessionModel, User, Role, role_permissions, Permission as PermissionModel
 from app.api.auth import decode_token
+from app.core.permissions import Permission, expand_permissions_with_dependencies
 from app.core.redis_client import redis_client
 
 
@@ -41,3 +44,32 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail='Session expired or revoked')
     
     return payload
+
+async def get_user_permissions(user_id: int, db: AsyncSession) -> Set[str]:
+    result = await db.execute(
+        select(PermissionModel.name)
+        .select_from(User)
+        .join(user_roles, User.id == user_roles.c.user_id)
+        .join(Role, user_roles.c.role_id == Role.id)
+        .join(role_permissions, Role.id == role_permissions.c.role_id)
+        .join(PermissionModel, role_permissions.c.permission_id == PermissionModel.id)
+        .where(User.id == user_id)
+    )
+    return {row[0] for row in result.all()}
+
+def permission_required(required_permissions: List[str]):
+    async def checker(
+        current_user: dict = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+    ):
+        user_id = current_user.get('user_id')
+        user_permissions = await get_user_permissions(user_id, db)
+
+        missing = [p for p in required_permissions if p not in user_permissions]
+        if missing:
+            raise HTTPException(
+                status_code=403, 
+                detail=f'Missing permissions: {', '.join(missing)}'
+            )
+        return current_user
+    return checker
