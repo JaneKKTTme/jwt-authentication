@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List, Set
 
 from fastapi import Depends, HTTPException, status
@@ -38,10 +39,14 @@ async def get_current_user(
         select(SessionModel).where(SessionModel.jti == jti)
     )
     session = result.scalar_one_or_none()
+
     if not session or session.revoked_at:
         redis_client.add_to_blacklist(jti)
         redis_client.remove_from_whitelist(jti)
         raise HTTPException(status_code=401, detail='Session expired or revoked')
+
+    if session.expired_at and session.expired_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=401, detail='Session expired')
     
     return payload
 
