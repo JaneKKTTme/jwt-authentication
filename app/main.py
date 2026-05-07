@@ -14,6 +14,7 @@ from app.api.auth import router as auth_router
 from app.api.auth import create_user
 from app.api.logout import router as logout_router
 from app.api.admin import router as admin_router
+from app.api.content import router as content_router
 from app.core.dependencies import get_current_user
 from app.core.redis_client import redis_client
 from app.core.schemas import UserCreate, UserResponse
@@ -37,6 +38,7 @@ app = FastAPI(title='Auth System', lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(logout_router)
 app.include_router(admin_router)
+app.include_router(content_router)
 
 security = HTTPBearer()
 
