@@ -94,7 +94,7 @@ class Permission(str, Enum):
 
 	@classmethod
 	def is_valid(cls, permission: str) -> bool:
-		return permission in cls.all_permission() or permission == cls.SUPER_ADMIN
+		return permission in cls.all_permissions() or permission == cls.SUPER_ADMIN
 
 
 @dataclass(frozen=True)
