@@ -168,11 +168,11 @@ class TestAdminExclusiveContent:
             'username': 'alice',
             'password': 'alicepass'
         })
-        token = login_resp.json()['access_token']
+        token = login_response.json()['access_token']
         headers = {'Authorization': f'Bearer {token}'}
 
         response = await client.get('/content/admin', headers=headers)
-        assert resp.status_code == 403
+        assert response.status_code == 403
 
     @pytest.mark.asyncio
     async def test_role2_cannot_access_admin_content(self, client: AsyncClient):
@@ -180,11 +180,11 @@ class TestAdminExclusiveContent:
             'username': 'bob',
             'password': 'bobpass'
         })
-        token = login_resp.json()['access_token']
+        token = login_response.json()['access_token']
         headers = {'Authorization': f'Bearer {token}'}
 
         response = await client.get('/content/admin', headers=headers)
-        assert resp.status_code == 403
+        assert response.status_code == 403
 
 
 class TestTokenRequiredForAllContent:
@@ -192,22 +192,22 @@ class TestTokenRequiredForAllContent:
     @pytest.mark.asyncio
     async def test_common_content_requires_token(self, client: AsyncClient):
         response = await client.get('/content/common')
-        assert resp.status_code == 401
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_role1_content_requires_token(self, client: AsyncClient):
         response = await client.get('/content/role1')
-        assert resp.status_code == 401
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_role2_content_requires_token(self, client: AsyncClient):
         response = await client.get('/content/role2')
-        assert resp.status_code == 401
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_admin_content_requires_token(self, client: AsyncClient):
         response = await client.get('/content/admin')
-        assert resp.status_code == 401
+        assert response.status_code == 401
 
 
 class TestInvalidTokenForContent:
@@ -216,7 +216,7 @@ class TestInvalidTokenForContent:
     async def test_invalid_token_rejected(self, client: AsyncClient):
         headers = {'Authorization': 'Bearer invalid.token'}
         response = await client.get('/content/common', headers=headers)
-        assert resp.status_code == 401
+        assert response.status_code == 401
 
     @pytest.mark.asyncio
     async def test_revoked_token_rejected(self, client: AsyncClient):
@@ -224,13 +224,13 @@ class TestInvalidTokenForContent:
             'username': 'alice',
             'password': 'alicepass'
         })
-        token = login_resp.json()['access_token']
+        token = login_response.json()['access_token']
         headers = {'Authorization': f'Bearer {token}'}
 
         response = await client.get('/content/common', headers=headers)
-        assert resp.status_code == 200
+        assert response.status_code == 200
 
         await client.post('/logout', data={'token': token})
 
         response = await client.get('/content/common', headers=headers)
-        assert resp.status_code == 401
+        assert response.status_code == 401
