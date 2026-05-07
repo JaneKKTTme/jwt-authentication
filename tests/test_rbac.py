@@ -1,6 +1,5 @@
-from httpx import AsyncClient
-
 import pytest
+from httpx import AsyncClient
 
 
 class TestCommonContent:
