@@ -69,7 +69,7 @@ def permission_required(required_permissions: List[str]):
         if missing:
             raise HTTPException(
                 status_code=403, 
-                detail=f'Missing permissions: {', '.join(missing)}'
+                detail=f'Missing permissions: {", ".join(missing)}'
             )
         return current_user
     return checker
