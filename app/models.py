@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
+from sqlalchemy import Table, Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -32,7 +32,7 @@ class User(Base):
 	created_at: datetime = Column(DateTime(timezone=True), server_default=func.now())
 	last_login: datetime | None = Column(DateTime(timezone=True), nullable=True)
 
-	roles = relationship('Role', secondary=user_roles, backref='users')
+	roles = relationship('Role', secondary=user_roles, back_populates='users')
 
 
 class Session(Base):
@@ -58,8 +58,8 @@ class Role(Base):
 	description: str = Column(String(255), nullable=True)
 	is_default: bool = Column(Boolean, default=False)
 
-	permissions = relationship('Permission', secondary=role_permissions, backref='roles')
-	users = relationship('User', secondary=user_roles, backref='roles')
+	permissions = relationship('Permission', secondary=role_permissions, back_populates='roles')
+	users = relationship('User', secondary=user_roles, back_populates='roles')
 
 
 class Permission(Base):
@@ -71,6 +71,8 @@ class Permission(Base):
 	resource: str = Column(String(50), nullable=False)
 	action: str = Column(String(50), nullable=False)
 	description: str = Column(String(255), nullable=True)
+
+	roles = relationship('Role', secondary=role_permissions, back_populates='permissions')
 
 	def __repr__(self):
 		return f'<Permission {self.name}>'
