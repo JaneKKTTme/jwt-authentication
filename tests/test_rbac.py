@@ -6,7 +6,7 @@ class TestCommonContent:
 
     @pytest.mark.asyncio
     async def test_role1_can_access_common_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -22,7 +22,7 @@ class TestCommonContent:
 
     @pytest.mark.asyncio
     async def test_role2_can_access_common_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'bob',
             'password': 'bobpass'
         })
@@ -35,7 +35,7 @@ class TestCommonContent:
 
     @pytest.mark.asyncio
     async def test_admin_can_access_common_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'admin',
             'password': 'adminpass'
         })
@@ -57,7 +57,7 @@ class TestRole1ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role1_can_access_role1_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -71,7 +71,7 @@ class TestRole1ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role2_cannot_access_role1_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'bob',
             'password': 'bobpass'
         })
@@ -84,7 +84,7 @@ class TestRole1ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_admin_cannot_access_role1_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'admin',
             'password': 'adminpass'
         })
@@ -104,7 +104,7 @@ class TestRole2ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role2_can_access_role2_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'bob',
             'password': 'bobpass'
         })
@@ -118,7 +118,7 @@ class TestRole2ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role1_cannot_access_role2_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -130,7 +130,7 @@ class TestRole2ExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_admin_cannot_access_role2_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'admin',
             'password': 'adminpass'
         })
@@ -150,7 +150,7 @@ class TestAdminExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_admin_can_access_admin_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'admin',
             'password': 'adminpass'
         })
@@ -164,7 +164,7 @@ class TestAdminExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role1_cannot_access_admin_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -176,7 +176,7 @@ class TestAdminExclusiveContent:
 
     @pytest.mark.asyncio
     async def test_role2_cannot_access_admin_content(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'bob',
             'password': 'bobpass'
         })
@@ -220,7 +220,7 @@ class TestInvalidTokenForContent:
 
     @pytest.mark.asyncio
     async def test_revoked_token_rejected(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })

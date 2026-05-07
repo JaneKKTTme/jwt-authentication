@@ -10,7 +10,7 @@ class TestLogoutBasic:
 
     @pytest.mark.asyncio
     async def test_logout_returns_success_message(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -36,7 +36,7 @@ class TestTokenInvalidationAfterLogout:
 
     @pytest.mark.asyncio
     async def test_token_cannot_access_protected_endpoint_after_logout(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -54,7 +54,7 @@ class TestTokenInvalidationAfterLogout:
 
     @pytest.mark.asyncio
     async def test_token_moved_to_blacklist_after_logout(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -72,7 +72,7 @@ class TestTokenInvalidationAfterLogout:
     @pytest.mark.asyncio
     async def test_removed_from_whitelist_after_logout(self, client: AsyncClient):
         'After logout, token should be removed from whitelist.'
-        login_resp = await client.post('/login', data={
+        login_resp = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -98,7 +98,7 @@ class TestLogoutEdgeCases:
 
     @pytest.mark.asyncio
     async def test_logout_tampered_token(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -113,7 +113,7 @@ class TestLogoutEdgeCases:
 
     @pytest.mark.asyncio
     async def test_logout_already_revoked_token(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -140,13 +140,13 @@ class TestLogoutWithMultipleTokens:
 
     @pytest.mark.asyncio
     async def test_logout_one_token_does_not_affect_other_tokens(self, client: AsyncClient):
-        first_login_response = await client.post('/login', data={
+        first_login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
         first_token = first_login_response.json()['access_token']
 
-        second_login_response = await client.post('/login', data={
+        second_login_response = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
@@ -170,13 +170,13 @@ class TestLogoutWithMultipleTokens:
 
     @pytest.mark.asyncio
     async def test_logout_does_not_affect_other_users_tokens(self, client: AsyncClient):
-        login_alice = await client.post('/login', data={
+        login_alice = await client.post('/login', json={
             'username': 'alice',
             'password': 'alicepass'
         })
         alice_token = login_alice.json()['access_token']
 
-        login_bob = await client.post('/login', data={
+        login_bob = await client.post('/login', json={
             'username': 'bob',
             'password': 'bobpass'
         })
@@ -194,7 +194,7 @@ class TestLogoutIdempotency:
 
     @pytest.mark.asyncio
     async def test_logout_idempotent_behavior(self, client: AsyncClient):
-        login_response = await client.post('/login', data={
+        login_response = await client.post('/login', json={
             'username': 'admin',
             'password': 'adminpass'
         })
@@ -217,7 +217,7 @@ class TestLogoutAfterExpiration:
 
         with freeze_time('2026-01-01 12:00:00'):
             token = create_access_token(
-                {'sub': 'alice', 'role': 'role1'},
+                {'sub': 'alice', 'role': 'role1', 'jti': 'test.jti.token'},
                 expires_delta=timedelta(minutes=1)
             )
 
