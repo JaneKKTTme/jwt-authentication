@@ -82,7 +82,8 @@ async def register(
 		role=user_data.role
 	)
 
-	user_role = user.roles[0].name if user.roles else 'user'
+	await db.refresh(user, attribute_names=['roles'])
+	user_role = user.roles[0].name if user.roles else user_data.role
 
 	return UserResponse(
 		id=user.id,
