@@ -28,8 +28,8 @@ def verify_password(suggested_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
 	to_encode = data.copy()
 
-	if 'jti' not in to_encode:
-		to_encode['jti'] = str(uuid.uuid4())
+	if 'jti' not in data:
+		raise ValueError('jti claim is required in token payload')
 
 	expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.access_token_expire_minutes))
 	to_encode.update({'exp': expire})
