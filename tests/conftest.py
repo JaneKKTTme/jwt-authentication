@@ -1,7 +1,9 @@
 from typing import Generator
 
 import pytest
+from httpx import AsyncClient
 
+from app.main import app
 from app.core.config import settings
 
 
@@ -20,3 +22,8 @@ def reset_settings():
 	settings.secret_key = original_secret
 	settings.algorithm = original_algorithm
 	settings.access_token_expire_minutes = original_expire
+
+@pytest.fixture
+async def client() -> AsyncGenerator:
+	async with AsyncClient(app=app, base_url='http://test') as async_client:
+		yield async_client
