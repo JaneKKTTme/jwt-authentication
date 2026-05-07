@@ -47,7 +47,7 @@ services:
     profiles:
       - testing
 
-  seed:
+  seed_users:
     build: .
     depends_on:
       postgres:
@@ -56,7 +56,23 @@ services:
         condition: service_healthy
     command: python scripts/seed_users.py
     profiles:
-      - seed
+      - seed-users
+    environment:
+      - PYTHONPATH=.
+    volumes:
+      - ./scripts:/app/scripts
+    restart: 'no'
+
+  seed_permissions:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python scripts/seed_permissions.py
+    profiles:
+      - seed-permissions
     environment:
       - PYTHONPATH=.
     volumes:
