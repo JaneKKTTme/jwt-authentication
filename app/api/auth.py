@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import User, Role
+from app.models import User, Role, Session as SessionModel
 from app.core.config import settings
 from app.core.redis_client import redis_client
 from app.core.schemas import LoginRequest
@@ -77,16 +77,31 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> U
 		return None
 	return user
 
-async def create_user_token(user: User) -> tuple[str, str]:
+async def create_user_token(user: User, request: Request, db: AsyncSession) -> tuple[str, str]:
 	jti = str(uuid.uuid4())
 	user_role = user.roles[0].name if user.roles else 'user'
+
+	expired_at = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+	
 	token = create_access_token({
 		'sub': user.username,
 		'role': user_role, 
 		'jti': jti,
 		'user_id': user.id
 	})
+
 	redis_client.add_to_whitelist(jti, user.username, user_role)
+
+	session = SessionModel(
+		user_id=user.id,
+		jti=jti,
+		ip_address=request.client.host if request.client else None,
+		user_agent=request.headers.get('user-agent'),
+		expired_at=expired_at
+	)
+	db.add(session)
+	await db.commit()
+
 	return token, jti
 
 @router.post('/login')
