@@ -11,6 +11,7 @@ from app.database import get_db
 from app.models import User, Role
 from app.core.config import settings
 from app.core.redis_client import redis_client
+from app.core.schemas import LoginRequest
 
 
 router = APIRouter(tags=['auth'])
@@ -91,18 +92,17 @@ async def create_user_token(user: User) -> tuple[str, str]:
 @router.post('/login')
 async def login(
 	request: Request, 
-	username: str,
-	password: str,
+	login_data: LoginRequest,
 	db: AsyncSession = Depends(get_db)
 ):
-	user = await authenticate_user(db, username, password)
+	user = await authenticate_user(db, login_data.username, login_data.password)
 	if not user:
 		raise HTTPException(status_code=401, detail='Invalid credentials')
 
 	user.last_login = datetime.now(timezone.utc)
 	await db.commit()
 
-	token, _ = await create_user_token(user)
+	token, _ = await create_user_token(user, request, db)
 	user_role = user.roles[0].name if user.roles else 'user'
 	return {'access_token': token, 'token_type': 'bearer', 'role': user_role}
 	
