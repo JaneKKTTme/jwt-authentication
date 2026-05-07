@@ -60,17 +60,6 @@ async def read_me(current_user: dict = Depends(get_current_user)):
 		'user_id': current_user.get('user_id')
 	}
 
-@app.get('/users')
-async def get_users(db: AsyncSession = Depends(get_db)) -> List[Dict[str, Any]]:
-	try: 
-		result = await db.execute(
-			text('SELECT id, username, role, is_active, created_at FROM users')
-		)
-		users = result.fetchall()
-		return [dict(user._mapping) for user in users]
-	except Exception as e:
-		raise HTTPException(status_code=500, detail=str(e))
-
 @app.post('/register', response_model=UserResponse)
 async def register(
 	user_data: UserCreate,
