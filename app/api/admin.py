@@ -23,3 +23,20 @@ async def list_users(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))    
 
+@router.post('/users/{user_id}/block')
+async def block_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(permission_required([Permission.USERS_BLOCK]))
+):
+    # TODO: implement blocking
+    pass
+
+@router.post('/users/{user_id}/unblock')
+async def unblock_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    _=Depends(permission_required([Permission.USERS_UNBLOCK]))
+):
+    # TODO: implement unblocking
+    pass
