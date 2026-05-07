@@ -78,8 +78,10 @@ async def register(
 		role=user_data.role
 	)
 
+	user_role = user.roles[0].name if user.roles else 'user'
+
 	return UserResponse(
 		id=user.id,
 		username=user.username,
-		role=user.role
+		role=user_role
 	)

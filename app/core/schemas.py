@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class UserCreate(BaseModel):
 	username: str
 	password: str
-	role: str = 'user'
+	role: str
 
 class UserResponse(BaseModel):
 	id: int

@@ -32,7 +32,6 @@ async def seed_users():
 			user = User(
 				username=username,
 				hashed_password=hash_password(password),
-				role=role,
 				is_active=True
 			)
 			session.add(user)

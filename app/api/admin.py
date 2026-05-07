@@ -16,7 +16,7 @@ async def list_users(
 ):
     try: 
         result = await db.execute(
-            text('SELECT id, username, role, is_active, created_at FROM users')
+            text('SELECT id, username, is_active, created_at FROM users')
         )
         users = result.fetchall()
         return [dict(user._mapping) for user in users]

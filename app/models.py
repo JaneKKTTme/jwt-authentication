@@ -28,7 +28,6 @@ class User(Base):
 	id: int = Column(Integer, primary_key=True, index=True)
 	username: str = Column(String(50), unique=True, index=True, nullable=False)
 	hashed_password: str = Column(String(255), nullable=False)
-	role: str = Column(String(20), default='user')
 	is_active: bool = Column(Boolean, default=True)
 	created_at: datetime = Column(DateTime(timezone=True), server_default=func.now())
 	last_login: datetime | None = Column(DateTime(timezone=True), nullable=True)

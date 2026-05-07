@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import User
+from app.models import User, Role
 from app.core.config import settings
 from app.core.redis_client import redis_client
 
@@ -46,12 +46,20 @@ async def create_user(db: AsyncSession, username: str, password: str, role: str 
 	user = User(
 		username=username,
 		hashed_password=hashed_password,
-		role=role,
 		is_active=True
 	)
 	db.add(user)
 	await db.commit()
 	await db.refresh(user)
+
+	if role:
+		result = await db.execute(
+			select(Role).where(Role.name == role)
+		)
+		default_role = result.scalar_one_or_none()
+		if default_role:
+			user.roles.append(default_role)
+			await db.commit()
 	return user
 
 async def get_user_by_username(db: AsyncSession, username: str) -> User | None:
@@ -68,13 +76,14 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> U
 
 async def create_user_token(user: User) -> tuple[str, str]:
 	jti = str(uuid.uuid4())
+	user_role = user.roles[0].name if user.roles else 'user'
 	token = create_access_token({
 		'sub': user.username,
-		'role': user.role, 
+		'role': user_role, 
 		'jti': jti,
 		'user_id': user.id
 	})
-	redis_client.add_to_whitelist(jti, user.username, user.role)
+	redis_client.add_to_whitelist(jti, user.username, user_role)
 	return token, jti
 
 @router.post('/login')
@@ -92,5 +101,6 @@ async def login(
 	await db.commit()
 
 	token, _ = await create_user_token(user)
-	return {'access_token': token, 'token_type': 'bearer', 'role': user.role}
+	user_role = user.roles[0].name if user.roles else 'user'
+	return {'access_token': token, 'token_type': 'bearer', 'role': user_role}
 	
