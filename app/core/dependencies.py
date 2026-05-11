@@ -13,7 +13,7 @@ from app.core.permissions import Permission, expand_permissions_with_dependencie
 from app.core.redis_client import redis_client
 
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
