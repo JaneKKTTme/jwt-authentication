@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from typing import List, Dict, Any
 
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.exceptions import HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy import text, select
