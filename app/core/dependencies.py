@@ -31,12 +31,12 @@ async def get_current_user(
     jti = payload.get('jti')
     if not jti:
         raise HTTPException(status_code=401, detail='Invalid token format')
+
+    if redis_client.is_blacklisted(jti):
+        raise HTTPException(status_code=401, detail='Token revoked')
     
     if not redis_client.is_whitelisted(jti):
         raise HTTPException(status_code=401, detail='Token not active')
-    
-    if redis_client.is_blacklisted(jti):
-        raise HTTPException(status_code=401, detail='Token revoked')
 
     result = await db.execute(
         select(SessionModel).where(SessionModel.jti == jti)
