@@ -55,8 +55,14 @@ async def get_current_user(
         redis_client.remove_from_whitelist(jti)
         raise HTTPException(status_code=401, detail='Session expired or revoked')
 
-    if session.expired_at and session.expired_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=401, detail='Session expired')
+    if session.expired_at:
+        if session.expired_at.tzinfo is None:
+            expired_at = session.expired_at.replace(tzinfo=timezone.utc)
+        else:
+            expired_at = session.expired_at
+
+        if expired_at < datetime.now(timezone.utc):
+            raise HTTPException(status_code=401, detail='Session expired')
     
     return payload
 
