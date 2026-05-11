@@ -29,7 +29,7 @@ class TestLogoutBasic:
     @pytest.mark.asyncio
     async def test_logout_empty_token_returns_error(self, client: AsyncClient):
         response = await client.post('/logout', data={'token': ''})
-        assert response.status_code == 400
+        assert response.status_code == 422
 
 
 class TestTokenInvalidationAfterLogout:

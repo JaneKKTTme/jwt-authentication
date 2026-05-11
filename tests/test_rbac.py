@@ -80,7 +80,7 @@ class TestRole1ExclusiveContent:
 
         response = await client.get('/content/role1', headers=headers)
         assert response.status_code == 403
-        assert 'insufficient permissions' in response.text.lower() or 'forbidden' in response.text.lower()
+        assert 'missing permissions' in response.text.lower()
 
     @pytest.mark.asyncio
     async def test_admin_cannot_access_role1_content(self, client: AsyncClient):
@@ -93,6 +93,7 @@ class TestRole1ExclusiveContent:
 
         response = await client.get('/content/role1', headers=headers)
         assert response.status_code == 403
+        assert 'missing permissions' in response.text.lower()
 
     @pytest.mark.asyncio
     async def test_unauthenticated_user_cannot_access_role1_content(self, client: AsyncClient):
@@ -127,6 +128,7 @@ class TestRole2ExclusiveContent:
 
         response = await client.get('/content/role2', headers=headers)
         assert response.status_code == 403
+        assert 'missing permissions' in response.text.lower()
 
     @pytest.mark.asyncio
     async def test_admin_cannot_access_role2_content(self, client: AsyncClient):
@@ -139,6 +141,7 @@ class TestRole2ExclusiveContent:
 
         response = await client.get('/content/role2', headers=headers)
         assert response.status_code == 403
+        assert 'missing permissions' in response.text.lower()
 
     @pytest.mark.asyncio
     async def test_unauthenticated_user_cannot_access_role2_content(self, client: AsyncClient):
@@ -173,6 +176,7 @@ class TestAdminExclusiveContent:
 
         response = await client.get('/content/admin', headers=headers)
         assert response.status_code == 403
+        assert 'missing permissions' in response.text.lower()
 
     @pytest.mark.asyncio
     async def test_role2_cannot_access_admin_content(self, client: AsyncClient):
