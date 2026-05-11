@@ -19,6 +19,9 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> dict:
+    if not credentials:
+        raise HTTPException(status_code=401, detail='Not authenticated')
+
     token = credentials.credentials
     payload = decode_token(token)
     
