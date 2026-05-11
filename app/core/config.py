@@ -8,6 +8,11 @@ class Settings(BaseSettings):
 		validation_alias='DATABASE_URL'
 	)
 
+	test_database_url: str = Field(
+		default='sqlite+aiosqlite:///:memory:',
+		validation_alias='TEST_DATABASE_URL'
+	)
+
 	secret_key: str = Field(
 		default='dev-secret-key-change-in-production',
 		validation_alias='SECRET_KEY'
