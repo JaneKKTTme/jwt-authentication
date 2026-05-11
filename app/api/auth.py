@@ -75,10 +75,14 @@ async def authenticate_user(db: AsyncSession, username: str, password: str) -> U
 		return None
 	if not user.is_active:
 		return None
+
+	await db.refresh(user, attribute_names=['roles'])
 	return user
 
 async def create_user_token(user: User, request: Request, db: AsyncSession) -> tuple[str, str]:
 	jti = str(uuid.uuid4())
+
+	await db.refresh(user, attribute_names=['roles'])
 	user_role = user.roles[0].name if user.roles else 'user'
 
 	expired_at = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)

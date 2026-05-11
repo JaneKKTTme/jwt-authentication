@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import asyncio
-from sqlalchemy import text
+from sqlalchemy import text, select
+from sqlalchemy.orm import selectinload
 
 from app.database import AsyncLocalSession, engine
+from app.models import Role
 from app.core.permissions import Permission as PermEnum, PERMISSION_REGISTRY
 
 
@@ -63,8 +65,9 @@ async def seed_roles():
         
         for role_name, config in roles_config.items():
             check_result = await session.execute(
-                text('SELECT id FROM roles WHERE name = :name'),
-                {'name': role_name}
+                select(Role)
+                .where(Role.name == role_name)
+                .options(selectinload(Role.permissions))
             )
             role_row = check_result.fetchone()
             
