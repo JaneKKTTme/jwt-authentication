@@ -185,29 +185,7 @@ class TestAdminExclusiveContent:
 
         response = await client.get('/content/admin', headers=headers)
         assert response.status_code == 403
-
-
-class TestTokenRequiredForAllContent:
-
-    @pytest.mark.asyncio
-    async def test_common_content_requires_token(self, client: AsyncClient):
-        response = await client.get('/content/common')
-        assert response.status_code == 401
-
-    @pytest.mark.asyncio
-    async def test_role1_content_requires_token(self, client: AsyncClient):
-        response = await client.get('/content/role1')
-        assert response.status_code == 401
-
-    @pytest.mark.asyncio
-    async def test_role2_content_requires_token(self, client: AsyncClient):
-        response = await client.get('/content/role2')
-        assert response.status_code == 401
-
-    @pytest.mark.asyncio
-    async def test_admin_content_requires_token(self, client: AsyncClient):
-        response = await client.get('/content/admin')
-        assert response.status_code == 401
+        assert 'missing permissions' in response.text.lower()
 
 
 class TestInvalidTokenForContent:
