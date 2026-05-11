@@ -7,9 +7,16 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import Session as SessionModel, User, Role, role_permissions, Permission as PermissionModel
+from app.models import (
+    User,
+    Role,
+    Session as SessionModel,
+    Permission as PermissionModel,
+    user_roles,
+    role_permissions
+)
 from app.api.auth import decode_token
-from app.core.permissions import Permission, expand_permissions_with_dependencies
+from app.core.permissions import Permission
 from app.core.redis_client import redis_client
 
 
